@@ -8,9 +8,9 @@ export default function LessonControlButtons({
   deleteModule,
   editModule,
 }: {
-  moduleId: string | undefined;
-  deleteModule: ((moduleId: string) => void) | undefined;
-  editModule: ((moduleId: string) => void) | undefined;
+  moduleId?: string | undefined;
+  deleteModule?: ((moduleId: string) => void) | undefined;
+  editModule?: ((moduleId: string) => void) | undefined;
 }) {
   return (
     <div className="float-end">

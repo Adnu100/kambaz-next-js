@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 import { useParams } from "next/navigation";
 import Title from "./Title";
 
-export default async function CoursesLayout({
+export default function CoursesLayout({
   children,
 }: Readonly<{ children: ReactNode; params: Promise<{ cid: string }> }>) {
   const { cid } = useParams();
