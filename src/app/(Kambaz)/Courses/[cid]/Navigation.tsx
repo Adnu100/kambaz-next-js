@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export default function CourseNavigation({ cid }: { cid: string }) {
+export default function CourseNavigation({ cid }: { cid: string | undefined }) {
   const pathname = usePathname();
   const links = [
     "Home",

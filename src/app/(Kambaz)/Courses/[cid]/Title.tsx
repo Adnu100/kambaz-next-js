@@ -2,9 +2,8 @@
 
 import { usePathname } from "next/navigation";
 import { FaAlignJustify } from "react-icons/fa6";
-import * as db from "../../Database";
 
-export default function Title() {
+export default function Title({ course }: Readonly<any>) {
   const pathname = usePathname();
   const pathtree = pathname.split("/");
   const coursesIndex = pathtree.findIndex((path) => path === "Courses");
@@ -12,14 +11,9 @@ export default function Title() {
 
   return (
     <div>
-      <h1>{breadcrumbs}</h1>
       <h2 className="text-danger">
         <FaAlignJustify className="me-4 fs-4 mb-1" />
-        {
-          db.courses.find((course) => course._id === pathtree[coursesIndex + 1])
-            ?.name
-        }{" "}
-        &gt; {breadcrumbs.join(" > ")}
+        {course.name} &gt; {breadcrumbs.join(" > ")}
       </h2>
     </div>
   );
