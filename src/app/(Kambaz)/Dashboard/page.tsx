@@ -30,15 +30,16 @@ export default function Dashboard() {
   });
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   const { enrollments } = db;
-  const courses = useSelector((state: any) =>
-    state.coursesReducer.courses.filter((course: any) =>
+  const courses = useSelector((state: any) => {
+    if (!currentUser) return [];
+    return state.coursesReducer.courses.filter((course: any) =>
       enrollments.some(
         (enrollment: any) =>
           enrollment.user === currentUser._id &&
           enrollment.course === course._id
       )
-    )
-  );
+    );
+  });
 
   return (
     <div id="wd-dashboard">
