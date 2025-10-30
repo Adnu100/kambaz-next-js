@@ -14,30 +14,70 @@ import {
   InputGroup,
   Row,
 } from "react-bootstrap";
-import * as db from "../../../../Database";
 import { useParams } from "next/navigation";
+import { useSelector, useDispatch } from "react-redux";
+import { useState } from "react";
+import { addNewAssignment, updateAssignment } from "../../Assignments/reducer";
+import { useRouter } from "next/navigation";
+
+interface Assignment {
+  _id: string;
+  title: string;
+  course: string;
+  notAvailableUntil: string;
+  dueDate: string;
+  totalPoints: number;
+  description: string;
+}
 
 export default function AssignmentEditor() {
   const { cid, aid } = useParams();
-  const assignment = db.assignments.find(
-    (assignment) => assignment._id === aid && assignment.course === cid
+  const { assignments }: { assignments: Assignment[] } = useSelector(
+    (state: any) => state.assignmentsReducer
+  );
+  const assignment = assignments.find(
+    (assignment: any) => assignment._id === aid && assignment.course === cid
+  );
+  const dispatch = useDispatch();
+  const router = useRouter();
+
+  const [title, setTitle] = useState(assignment?.title || "");
+  const [description, setDescription] = useState(assignment?.description || "");
+  const [points, setPoints] = useState(assignment?.totalPoints || 0);
+  const [dueDate, setDueDate] = useState(assignment?.dueDate || "");
+  const [availableFrom, setAvailableFrom] = useState("");
+  const [notAvailableUntil, setNotAvailableUntil] = useState(
+    assignment?.notAvailableUntil || ""
   );
 
   return (
     <div id="wd-assignments-editor">
       <FormGroup className="mb-3" controlId="wd-name">
         <FormLabel>Assignment Name</FormLabel>
-        <FormControl value={assignment?.title} />
+        <FormControl
+          value={title}
+          onChange={(e) => {
+            setTitle(e.target.value);
+          }}
+        />
       </FormGroup>
       <FormGroup className="mb-3" controlId="wd-description-textarea">
-        <FormControl as="textarea" rows={10} value={assignment?.description} />
+        <FormControl
+          as="textarea"
+          rows={10}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
       </FormGroup>
       <FormGroup as={Row} className="mb-3" controlId="wd-points">
         <FormLabel className="text-end" column sm={4}>
           Points
         </FormLabel>
         <Col sm={8}>
-          <FormControl value={assignment?.totalPoints} />
+          <FormControl
+            value={points}
+            onChange={(e) => setPoints(parseInt(e.target.value))}
+          />
         </Col>
       </FormGroup>
       <FormGroup as={Row} className="mb-3" controlId="wd-group">
@@ -128,7 +168,8 @@ export default function AssignmentEditor() {
             <InputGroup>
               <FormControl
                 type="datetime-local"
-                value={`${assignment?.dueDate} 23:59`}
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
               />
             </InputGroup>
           </FormGroup>
@@ -141,7 +182,8 @@ export default function AssignmentEditor() {
                 <InputGroup>
                   <FormControl
                     type="datetime-local"
-                    value={`${assignment?.notAvailableUntil} 23:59`}
+                    value={availableFrom}
+                    onChange={(e) => setAvailableFrom(e.target.value)}
                   />
                 </InputGroup>
               </FormGroup>
@@ -152,7 +194,11 @@ export default function AssignmentEditor() {
                   <strong>Until</strong>
                 </FormLabel>
                 <InputGroup>
-                  <FormControl type="datetime-local" />
+                  <FormControl
+                    type="datetime-local"
+                    value={notAvailableUntil}
+                    onChange={(e) => setNotAvailableUntil(e.target.value)}
+                  />
                 </InputGroup>
               </FormGroup>
             </Col>
@@ -173,7 +219,29 @@ export default function AssignmentEditor() {
           variant="danger"
           size="lg"
           className="me-1"
-          href={`/Courses/${cid}/Assignments/`}
+          onClick={() => {
+            if (!title || !points || !dueDate || !notAvailableUntil) {
+              alert(
+                "Please fill title, points, due date and not available until fields."
+              );
+              return;
+            }
+            const newAssignment: Assignment = {
+              _id: assignment ? assignment._id : "",
+              title,
+              course: cid ? cid.toString() : "",
+              notAvailableUntil,
+              dueDate,
+              totalPoints: points,
+              description,
+            };
+            dispatch(
+              aid === "New"
+                ? addNewAssignment(newAssignment)
+                : updateAssignment(newAssignment)
+            );
+            router.push(`/Courses/${cid}/Assignments/`);
+          }}
         >
           Save
         </Button>

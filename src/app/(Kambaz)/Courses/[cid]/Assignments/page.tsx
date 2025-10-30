@@ -17,12 +17,14 @@ import { FaPlus } from "react-icons/fa6";
 import { IoEllipsisVertical } from "react-icons/io5";
 import "./styles.css";
 import { useParams } from "next/navigation";
-import * as db from "../../../Database";
 import AssignmentRow from "./AssignmentRow";
+import { useSelector } from "react-redux";
+import Link from "next/link";
 
 export default function Assignments() {
   const { cid } = useParams();
-  const assignments = db.assignments;
+  const { assignments } = useSelector((state: any) => state.assignmentsReducer);
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
 
   return (
     <div id="wd-assignments">
@@ -34,17 +36,27 @@ export default function Assignments() {
           <Form.Control placeholder="Search..." />
         </InputGroup>
         <Container className="text-nowrap text-end">
-          <Button id="wd-add-assignment-group" variant="light" size="lg">
-            + Group
-          </Button>
-          <Button
-            id="wd-add-assignment"
-            variant="danger"
-            size="lg"
-            className="me-1"
-          >
-            + Assignment
-          </Button>
+          {currentUser?.role === "FACULTY" && (
+            <>
+              <Button id="wd-add-assignment-group" variant="light" size="lg">
+                + Group
+              </Button>
+              <Button
+                id="wd-add-assignment"
+                variant="danger"
+                size="lg"
+                className="me-1"
+                href={`/Courses/${cid}/Assignments/New`}
+              >
+                <Link
+                  href={`/Courses/${cid}/Assignments/New`}
+                  className="text-white text-decoration-none"
+                >
+                  + Assignment
+                </Link>
+              </Button>
+            </>
+          )}
         </Container>
       </Container>
       <Container fluid="lg">
@@ -81,8 +93,8 @@ export default function Assignments() {
         </ListGroup>
         <ListGroup className="rounded-0 border-5 border-start border-success">
           {assignments
-            .filter((assignment) => assignment.course === cid)
-            .map((assignment) => (
+            .filter((assignment: any) => assignment.course === cid)
+            .map((assignment: any) => (
               <ListGroupItem className="wd-lesson p-3" key={assignment._id}>
                 <AssignmentRow assignment={assignment} />
               </ListGroupItem>
