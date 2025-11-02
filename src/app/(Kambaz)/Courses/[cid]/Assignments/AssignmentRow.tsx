@@ -7,6 +7,8 @@ import { IoEllipsisVertical } from "react-icons/io5";
 import { RiFileEditLine } from "react-icons/ri";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteAssignment } from "../Assignments/reducer";
+import AssignmentDeleteConfirmationModal from "./AssignmentDeleteConfirmationModal";
+import { useState } from "react";
 
 interface Assignment {
   _id: string;
@@ -24,9 +26,20 @@ export default function AssignmentRow({
   assignment: Assignment;
 }) {
   const { currentUser } = useSelector((state: any) => state.accountReducer);
+  const [show, setShow] = useState<boolean>(false);
   const dispatch = useDispatch();
+
   return (
     <Row>
+      <AssignmentDeleteConfirmationModal
+        show={show}
+        handleClose={() => setShow(false)}
+        dialogTitle="Are you sure you want to delete this assignment?"
+        deleteAssignment={() => {
+          dispatch(deleteAssignment(assignment._id));
+          setShow(false);
+        }}
+      />
       <Col md={2} className="d-flex align-items-center">
         <BsGripVertical className="fs-4 me-3" />
         <RiFileEditLine className="fs-4 me-3" />
@@ -78,12 +91,9 @@ export default function AssignmentRow({
         md={1}
         className="text-end d-flex align-items-center justify-content-end"
       >
-        <FaTrash
-          className="text-danger fs-5"
-          onClick={() => {
-            dispatch(deleteAssignment(assignment._id));
-          }}
-        />
+        {currentUser?.role === "FACULTY" && (
+          <FaTrash className="text-danger fs-5" onClick={() => setShow(true)} />
+        )}
       </Col>
       <Col
         md={1}
