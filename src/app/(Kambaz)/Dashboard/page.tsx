@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addNewCourse, deleteCourse, updateCourse } from "../Courses/reducer";
+import { setCourses } from "../Courses/reducer";
 import {
   addNewEnrollment,
   deleteEnrollment,
+  setEnrollments,
 } from "../Courses/enrollmentReducer";
 import Link from "next/link";
 import {
@@ -19,6 +20,7 @@ import {
   FormControl,
   Row,
 } from "react-bootstrap";
+import * as client from "../Courses/client";
 
 export default function Dashboard() {
   const dispatch = useDispatch();
@@ -31,8 +33,54 @@ export default function Dashboard() {
     image: "/images/reactjs.jpg",
     description: "New Description",
   });
-  const [showAll, setShowAll] = useState(false);
   const { currentUser } = useSelector((state: any) => state.accountReducer);
+  const onAddNewCourse = async () => {
+    const newCourse = await client.createCourse(course);
+    console.log("New Course Created: ", newCourse);
+    dispatch(setCourses([...courses, newCourse]));
+  };
+  const onDeleteCourse = async (courseId: string) => {
+    const status = await client.deleteCourse(courseId);
+    console.log(status);
+    dispatch(
+      setCourses(courses.filter((course: any) => course._id !== courseId))
+    );
+  };
+  const onUpdateCourse = async () => {
+    await client.updateCourse(course);
+    dispatch(
+      setCourses(
+        courses.map((c: any) => {
+          if (c._id === course._id) {
+            return course;
+          } else {
+            return c;
+          }
+        })
+      )
+    );
+  };
+  const fetchCourses = async () => {
+    try {
+      const courses = await client.findMyCourses();
+      dispatch(setCourses(courses));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const fetchEnrollments = async () => {
+    try {
+      const enrollments = await client.getEnrollments();
+      dispatch(setEnrollments(enrollments));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    fetchCourses();
+    fetchEnrollments();
+  }, [currentUser]);
+  const [showAll, setShowAll] = useState(false);
   const enrollments = useSelector(
     (state: any) => state.enrollmentsReducer.enrollments
   );
@@ -81,13 +129,13 @@ export default function Dashboard() {
         <button
           className="btn btn-primary float-end"
           id="wd-add-new-course-click"
-          onClick={() => dispatch(addNewCourse(course))}
+          onClick={onAddNewCourse}
         >
           Add
         </button>
         <button
           className="btn btn-warning float-end me-2"
-          onClick={() => dispatch(updateCourse(course))}
+          onClick={onUpdateCourse}
           id="wd-update-course-click"
         >
           Update
@@ -143,6 +191,7 @@ export default function Dashboard() {
                             className="float-end me-2 mb-2"
                             onClick={(event) => {
                               event.preventDefault();
+                              client.unenrollFromCourse(course._id);
                               dispatch(
                                 deleteEnrollment({
                                   user: currentUser._id,
@@ -159,6 +208,7 @@ export default function Dashboard() {
                             className="float-end me-2 mb-2"
                             onClick={(event) => {
                               event.preventDefault();
+                              client.enrollInCourse(course._id);
                               dispatch(
                                 addNewEnrollment({
                                   user: currentUser._id,
@@ -178,7 +228,7 @@ export default function Dashboard() {
                               <button
                                 onClick={(event) => {
                                   event.preventDefault();
-                                  dispatch(deleteCourse(course._id));
+                                  onDeleteCourse(course._id);
                                 }}
                                 className="btn btn-danger float-end"
                                 id="wd-delete-course-click"

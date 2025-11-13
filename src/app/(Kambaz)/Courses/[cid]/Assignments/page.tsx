@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import {
   Button,
   Container,
@@ -19,13 +20,23 @@ import "./styles.css";
 import { useParams } from "next/navigation";
 import AssignmentRow from "./AssignmentRow";
 import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { setAssignments } from "../Assignments/reducer";
 import Link from "next/link";
+import * as client from "../../client";
 
 export default function Assignments() {
   const { cid } = useParams();
   const { assignments } = useSelector((state: any) => state.assignmentsReducer);
   const { currentUser } = useSelector((state: any) => state.accountReducer);
-
+  const dispatch = useDispatch();
+  const fetchAssignments = async () => {
+    const assignments = await client.findAssignmentsForCourse(cid as string);
+    dispatch(setAssignments(assignments));
+  };
+  useEffect(() => {
+    fetchAssignments();
+  }, []);
   return (
     <div id="wd-assignments">
       <Container className="d-flex justify-content-between align-items-center mb-3">

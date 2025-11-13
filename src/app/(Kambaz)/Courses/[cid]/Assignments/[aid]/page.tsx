@@ -19,6 +19,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useState } from "react";
 import { addNewAssignment, updateAssignment } from "../../Assignments/reducer";
 import { useRouter } from "next/navigation";
+import * as client from "../../../client";
 
 interface Assignment {
   _id: string;
@@ -49,6 +50,17 @@ export default function AssignmentEditor() {
   const [notAvailableUntil, setNotAvailableUntil] = useState(
     assignment?.notAvailableUntil || ""
   );
+
+  const createAssignment = (assignment: Assignment) => {
+    if (!cid) return;
+    client.createAssignment(cid as string, assignment);
+    dispatch(addNewAssignment(assignment));
+  };
+  const updateAssignmentServer = (assignment: Assignment) => {
+    if (!cid) return;
+    client.updateAssignment(assignment);
+    dispatch(updateAssignment(assignment));
+  };
 
   return (
     <div id="wd-assignments-editor">
@@ -235,11 +247,9 @@ export default function AssignmentEditor() {
               totalPoints: points,
               description,
             };
-            dispatch(
-              aid === "New"
-                ? addNewAssignment(newAssignment)
-                : updateAssignment(newAssignment)
-            );
+            aid === "New"
+              ? createAssignment(newAssignment)
+              : updateAssignmentServer(newAssignment);
             router.push(`/Courses/${cid}/Assignments/`);
           }}
         >

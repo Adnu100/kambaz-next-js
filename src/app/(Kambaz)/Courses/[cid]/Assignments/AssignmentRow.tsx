@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { deleteAssignment } from "../Assignments/reducer";
 import AssignmentDeleteConfirmationModal from "./AssignmentDeleteConfirmationModal";
 import { useState } from "react";
+import * as client from "../../client";
 
 interface Assignment {
   _id: string;
@@ -28,6 +29,12 @@ export default function AssignmentRow({
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   const [show, setShow] = useState<boolean>(false);
   const dispatch = useDispatch();
+  const deleteAssignmentFromServer = async (assignmentId: string) => {
+    const status = await client.deleteAssignment(assignmentId);
+    console.log(status);
+    dispatch(deleteAssignment(assignment._id));
+    setShow(false);
+  };
 
   return (
     <Row>
@@ -36,8 +43,7 @@ export default function AssignmentRow({
         handleClose={() => setShow(false)}
         dialogTitle="Are you sure you want to delete this assignment?"
         deleteAssignment={() => {
-          dispatch(deleteAssignment(assignment._id));
-          setShow(false);
+          deleteAssignmentFromServer(assignment._id);
         }}
       />
       <Col md={2} className="d-flex align-items-center">
