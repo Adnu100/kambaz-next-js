@@ -210,7 +210,9 @@ export default function AssignmentEditor() {
           id="wd-add-assignment-group"
           variant="light"
           size="lg"
-          href={`/Courses/${cid}/Assignments/`}
+          onClick={() => {
+            router.push(`/Courses/${cid}/Assignments/`);
+          }}
         >
           Cancel
         </Button>
