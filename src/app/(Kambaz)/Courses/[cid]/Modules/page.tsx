@@ -45,19 +45,24 @@ export default function Modules() {
   useEffect(() => {
     fetchModules();
   }, []);
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
 
   return (
     <div>
       <div>
-        <ModulesControls
-          setModuleName={setModuleName}
-          moduleName={moduleName}
-          addModule={onCreateModuleForCourse}
-        />
-        <br />
-        <br />
-        <br />
-        <br />
+        {currentUser.role === "FACULTY" && (
+          <>
+            <ModulesControls
+              setModuleName={setModuleName}
+              moduleName={moduleName}
+              addModule={onCreateModuleForCourse}
+            />
+            <br />
+            <br />
+            <br />
+            <br />
+          </>
+        )}
         <ListGroup className="rounded-0" id="wd-modules">
           {modules.map((moduleObj: any) => (
             <ListGroupItem

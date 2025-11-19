@@ -36,7 +36,6 @@ export default function Dashboard() {
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   const onAddNewCourse = async () => {
     const newCourse = await client.createCourse(course);
-    console.log("New Course Created: ", newCourse);
     dispatch(setCourses([...courses, newCourse]));
   };
   const onDeleteCourse = async (courseId: string) => {
@@ -84,14 +83,6 @@ export default function Dashboard() {
   const enrollments = useSelector(
     (state: any) => state.enrollmentsReducer.enrollments
   );
-  const enrolledCourses = useMemo(() => {
-    if (!currentUser) return new Set();
-    return new Set(
-      enrollments
-        .filter((enrollment: any) => enrollment.user === currentUser._id)
-        .map((enrollment: any) => enrollment.course)
-    );
-  }, [enrollments, currentUser]);
   const allCourses = useSelector((state: any) => state.coursesReducer.courses);
   const courses: any = useMemo(() => {
     if (!currentUser) return [];
@@ -104,7 +95,15 @@ export default function Dashboard() {
               enrollment.course === course._id
           )
         );
-  }, [allCourses, currentUser, showAll]);
+  }, [allCourses, currentUser, showAll, enrollments]);
+  const enrolledCourses = useMemo(() => {
+    if (!currentUser) return new Set();
+    return new Set(
+      enrollments
+        .filter((enrollment: any) => enrollment.user === currentUser._id)
+        .map((enrollment: any) => enrollment.course)
+    );
+  }, [enrollments, currentUser, allCourses, courses]);
 
   return (
     <div id="wd-dashboard">
@@ -124,34 +123,40 @@ export default function Dashboard() {
         </Col>
       </Row>
       <hr />
-      <h5>
-        New Course
-        <button
-          className="btn btn-primary float-end"
-          id="wd-add-new-course-click"
-          onClick={onAddNewCourse}
-        >
-          Add
-        </button>
-        <button
-          className="btn btn-warning float-end me-2"
-          onClick={onUpdateCourse}
-          id="wd-update-course-click"
-        >
-          Update
-        </button>
-      </h5>
-      <br />
-      <FormControl
-        value={course.name}
-        className="mb-2"
-        onChange={(e) => setCourse({ ...course, name: e.target.value })}
-      />
-      <FormControl
-        value={course.description}
-        onChange={(e) => setCourse({ ...course, description: e.target.value })}
-      />
-      <hr />
+      {currentUser.role === "FACULTY" && (
+        <>
+          <h5>
+            New Course
+            <button
+              className="btn btn-primary float-end"
+              id="wd-add-new-course-click"
+              onClick={onAddNewCourse}
+            >
+              Add
+            </button>
+            <button
+              className="btn btn-warning float-end me-2"
+              onClick={onUpdateCourse}
+              id="wd-update-course-click"
+            >
+              Update
+            </button>
+          </h5>
+          <br />
+          <FormControl
+            value={course.name}
+            className="mb-2"
+            onChange={(e) => setCourse({ ...course, name: e.target.value })}
+          />
+          <FormControl
+            value={course.description}
+            onChange={(e) =>
+              setCourse({ ...course, description: e.target.value })
+            }
+          />
+          <hr />
+        </>
+      )}
       <h2 id="wd-dashboard-published">Published Courses ({courses.length})</h2>
       <hr />
       <div id="wd-dashboard-courses">
