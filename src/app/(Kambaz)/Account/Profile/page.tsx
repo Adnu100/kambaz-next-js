@@ -20,14 +20,17 @@ export default function Profile() {
     if (!currentUser) return redirect("/Account/Signin");
     setProfile(currentUser);
   };
+
   const signout = async () => {
     await client.signout();
     dispatch(setCurrentUser(null));
     redirect("/Account/Signin");
   };
+
   useEffect(() => {
     fetchProfile();
   }, []);
+
   return (
     <div className="wd-profile-screen">
       <h3>Profile</h3>
