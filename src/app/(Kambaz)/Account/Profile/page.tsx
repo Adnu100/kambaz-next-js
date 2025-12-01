@@ -31,6 +31,12 @@ export default function Profile() {
     fetchProfile();
   }, []);
 
+  const getDob = (dob: string) => {
+    if (!dob) return "";
+    if (dob.indexOf("T") === -1) return dob;
+    return dob.split("T")[0];
+  };
+
   return (
     <div className="wd-profile-screen">
       <h3>Profile</h3>
@@ -72,7 +78,7 @@ export default function Profile() {
             id="wd-dob"
             className="mb-2"
             type="date"
-            defaultValue={profile.dob}
+            defaultValue={getDob(profile.dob)}
             onChange={(e) => setProfile({ ...profile, dob: e.target.value })}
           />
           <FormControl
