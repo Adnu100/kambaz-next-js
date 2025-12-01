@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Button,
   Dropdown,
@@ -9,8 +7,11 @@ import {
 } from "react-bootstrap";
 import { FaPlus } from "react-icons/fa6";
 import GreenCheckmark from "./GreenCheckmark";
+import BanCheckmark from "./BanCheckmark";
+
 import ModuleEditor from "./ModuleEditor";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 
 export default function ModulesControls({
   moduleName,
@@ -25,18 +26,28 @@ export default function ModulesControls({
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
+
+  const canAddModule =
+    currentUser?.role === "FACULTY" || currentUser?.role === "ADMIN";
   return (
     <div id="wd-modules-controls" className="text-nowrap">
-      <Button
-        variant="danger"
-        size="lg"
-        className="me-1 float-end"
-        id="wd-add-module-btn"
-        onClick={handleShow}
-      >
-        <FaPlus className="position-relative me-2" style={{ bottom: "1px" }} />
-        Module
-      </Button>
+      {canAddModule && (
+        <Button
+          variant="danger"
+          onClick={handleShow}
+          size="lg"
+          className="me-1 float-end"
+          id="wd-add-module-btn"
+        >
+          <FaPlus
+            className="position-relative me-2"
+            style={{ bottom: "1px" }}
+          />
+          Module
+        </Button>
+      )}
+
       <Dropdown className="float-end me-2">
         <DropdownToggle variant="secondary" size="lg" id="wd-publish-all-btn">
           <GreenCheckmark /> Publish All
@@ -52,28 +63,29 @@ export default function ModulesControls({
             <GreenCheckmark /> Publish modules only
           </DropdownItem>
           <DropdownItem id="wd-unpublish-all-modules-and-items">
-            <GreenCheckmark /> Unpublish all modules and items
+            <BanCheckmark /> Unpublish all modules and items
           </DropdownItem>
           <DropdownItem id="wd-unpublish-modules-only">
-            <GreenCheckmark /> Unpublish modules only
+            <BanCheckmark /> Unpublish modules only
           </DropdownItem>
         </DropdownMenu>
       </Dropdown>
+
       <Button
         variant="secondary"
         size="lg"
-        className="me-1 float-end"
-        id="wd-add-module-btn"
+        className="me-2 float-end"
+        id="wd-view-progress"
       >
-        Collapse All
+        View Progress
       </Button>
       <Button
         variant="secondary"
         size="lg"
-        className="me-1 float-end"
-        id="wd-add-module-btn"
+        className="me-2 float-end"
+        id="wd-collapse-all"
       >
-        View Progress
+        Collapse All
       </Button>
       <ModuleEditor
         show={show}

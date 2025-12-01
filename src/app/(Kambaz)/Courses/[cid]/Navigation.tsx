@@ -1,10 +1,13 @@
 "use client";
-
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useParams } from "next/navigation";
+import { ListGroupItem } from "react-bootstrap";
+import { courses } from "../../Database";
 
-export default function CourseNavigation({ cid }: { cid: string | undefined }) {
-  const pathname = usePathname();
+export default function CourseNavigation() {
+  const { cid } = useParams();
+  const course = courses.find((course) => course._id === cid);
+
   const links = [
     "Home",
     "Modules",
@@ -15,20 +18,20 @@ export default function CourseNavigation({ cid }: { cid: string | undefined }) {
     "Grades",
     "People",
   ];
+
   return (
     <div id="wd-courses-navigation" className="wd list-group fs-5 rounded-0">
       {links.map((link) => (
-        <Link
+        <ListGroupItem
           key={link}
-          href={`/Courses/${cid}/${link}`}
-          id={`wd-course-${link}-link`}
-          className={`list-group-item ${
-            pathname.endsWith(link) ? "active" : ""
-          } border-0 text-danger`}
+          as={Link}
+          href={`/Courses/${course?._id}/${link}`}
+          className="list-group-item text-danger border-0"
         >
           {link}
-        </Link>
+        </ListGroupItem>
       ))}
     </div>
   );
 }
+

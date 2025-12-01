@@ -9,6 +9,7 @@ import {
   findUsersByPartialName,
   createUser,
 } from "../../../../Account/client";
+import { findAllEnrollments } from "../../../../Courses/client";
 import PeopleDetails from "../Details";
 import { FaPlus } from "react-icons/fa6";
 
@@ -23,6 +24,7 @@ export default function PeopleTable({
   const [showDetails, setShowDetails] = useState(false);
   const [showUserId, setShowUserId] = useState<string | null>(null);
   const { cid } = useParams();
+  const [enrollmentUsers, setEnrollmentUsers] = useState<Set<any>>(new Set());
 
   const createNewUser = async () => {
     const user = await createUser({
@@ -36,6 +38,22 @@ export default function PeopleTable({
     });
     setUsers([...users, user]);
   };
+
+  useEffect(() => {
+    findAllEnrollments().then((enrollments) => {
+      if (cid) {
+        setEnrollmentUsers(
+          new Set(
+            enrollments
+              .filter((e: any) => e.course === cid)
+              .map((e: any) => e.user)
+          )
+        );
+      } else {
+        setEnrollmentUsers(new Set());
+      }
+    });
+  }, [cid]);
 
   useEffect(() => {
     if (name && name.length > 0) {
@@ -101,28 +119,35 @@ export default function PeopleTable({
         </thead>
         <tbody>
           {users &&
-            users.map((user: any) => (
-              <tr key={user._id}>
-                <td className="wd-full-name text-nowrap">
-                  <span
-                    className="text-decoration-none"
-                    onClick={() => {
-                      setShowDetails(true);
-                      setShowUserId(user._id);
-                    }}
-                  >
-                    <FaUserCircle className="me-2 fs-1 text-secondary" />
-                    <span className="wd-first-name">{user.firstName}</span>{" "}
-                    <span className="wd-last-name">{user.lastName}</span>
-                  </span>
-                </td>
-                <td className="wd-login-id">{user.loginId}</td>
-                <td className="wd-section">{user.section}</td>
-                <td className="wd-role">{user.role}</td>
-                <td className="wd-last-activity">{user.lastActivity}</td>
-                <td className="wd-total-activity">{user.totalActivity}</td>
-              </tr>
-            ))}
+            users
+              .filter((user) => {
+                if (enrollmentUsers.size === 0) return true;
+                return enrollmentUsers.has(user._id);
+              })
+              .map((user: any) => (
+                <tr key={user._id}>
+                  <td className="wd-full-name text-nowrap">
+                    <span
+                      className="text-decoration-none"
+                      onClick={() => {
+                        setShowDetails(true);
+                        setShowUserId(user._id);
+                      }}
+                    >
+                      <FaUserCircle className="me-2 fs-1 text-secondary" />
+                      <span className="wd-first-name">
+                        {user.firstName}
+                      </span>{" "}
+                      <span className="wd-last-name">{user.lastName}</span>
+                    </span>
+                  </td>
+                  <td className="wd-login-id">{user.loginId}</td>
+                  <td className="wd-section">{user.section}</td>
+                  <td className="wd-role">{user.role}</td>
+                  <td className="wd-last-activity">{user.lastActivity}</td>
+                  <td className="wd-total-activity">{user.totalActivity}</td>
+                </tr>
+              ))}
         </tbody>
       </Table>
     </div>

@@ -1,3 +1,5 @@
+"use client";
+
 import { Modal, FormControl, Button } from "react-bootstrap";
 
 export default function ModuleEditor({
@@ -33,7 +35,7 @@ export default function ModuleEditor({
           Cancel
         </Button>
         <Button
-          variant="primary"
+          variant="danger"
           onClick={() => {
             addModule();
             handleClose();
@@ -45,3 +47,4 @@ export default function ModuleEditor({
     </Modal>
   );
 }
+
