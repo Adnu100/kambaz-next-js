@@ -10,7 +10,7 @@ const getInitialEnrollments = () => {
   return enrollments;
 };
 
-const initialState = {
+const initialState: { courses: any[]; enrollments: any[] } = {
   courses: [],
   enrollments: getInitialEnrollments(),
 };
